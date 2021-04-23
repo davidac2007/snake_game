@@ -29,7 +29,7 @@ impl Game {
     fn render(&mut self, args: &RenderArgs) {
         const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
 
-        self.gl.draw(args.viewport(), |c, gl| {
+        self.gl.draw(args.viewport(), |_c, gl| {
             graphics::clear(GREEN, gl);
         });
 
@@ -37,7 +37,7 @@ impl Game {
         self.food.render(&mut self.gl, args, self.square_width);
     }
 
-    fn update(&mut self, args: &UpdateArgs) -> bool {
+    fn update(&mut self, _args: &UpdateArgs) -> bool {
         if !self.snake.update(self.just_eaten, self.cols, self.rows) {
             return false;
         }
@@ -89,24 +89,22 @@ enum Direction {
 
 pub struct Snake {
     gl: GlGraphics,
-    snake_parts: LinkedList<Snake_Piece>,
+    snake_parts: LinkedList<SnakePiece>,
     width: u32,
     d: Direction,
 }
 
 #[derive(Clone)]
-pub struct Snake_Piece(u32, u32);
+pub struct SnakePiece(u32, u32);
 
 impl Snake {
     pub fn render(&mut self, args: &RenderArgs) {
-        use graphics;
-
         const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
 
         let squares: Vec<graphics::types::Rectangle> = self
             .snake_parts
             .iter()
-            .map(|p| Snake_Piece(p.0 * self.width, p.1 * self.width))
+            .map(|p| SnakePiece(p.0 * self.width, p.1 * self.width))
             .map(|p| graphics::rectangle::square(p.0 as f64, p.1 as f64, self.width as f64))
             .collect();
 
@@ -121,7 +119,7 @@ impl Snake {
 
     /// Move the snake if valid, otherwise returns false.
     pub fn update(&mut self, just_eaten: bool, cols: u32, rows: u32) -> bool {
-        let mut new_front: Snake_Piece =
+        let mut new_front: SnakePiece =
             (*self.snake_parts.front().expect("No front of snake found.")).clone();
 
         if (self.d == Direction::UP && new_front.1 == 0)
@@ -174,7 +172,7 @@ impl Food {
     }
 
     fn render(&mut self, gl: &mut GlGraphics, args: &RenderArgs, width: u32) {
-        const BLACK: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
+        const BLACK: [f32; 4] = [1.0, 5.0, 1.0, 1.0];
 
         let x = self.x * width;
         let y = self.y * width;
@@ -197,10 +195,10 @@ fn main() {
     const ROWS: u32 = 20;
     const SQUARE_WIDTH: u32 = 20;
 
-    let WIDTH = COLS * SQUARE_WIDTH;
-    let HEIGHT = ROWS * SQUARE_WIDTH;
+    let width = COLS * SQUARE_WIDTH;
+    let height = ROWS * SQUARE_WIDTH;
 
-    let mut window: GlutinWindow = WindowSettings::new("Snake Game", [WIDTH, HEIGHT])
+    let mut window: GlutinWindow = WindowSettings::new("Snake Game🐍", [width, height])
         .graphics_api(opengl)
         .exit_on_esc(true)
         .build()
@@ -216,13 +214,13 @@ fn main() {
         score: 0,
         snake: Snake {
             gl: GlGraphics::new(opengl),
-            snake_parts: LinkedList::from_iter((vec![Snake_Piece(COLS / 2, ROWS / 2)]).into_iter()),
+            snake_parts: LinkedList::from_iter((vec![SnakePiece(COLS / 2, ROWS / 2)]).into_iter()),
             width: SQUARE_WIDTH,
             d: Direction::DOWN,
         },
     };
 
-    let mut events = Events::new(EventSettings::new()).ups(10);
+    let mut events = Events::new(EventSettings::new()).ups(15);
     while let Some(e) = events.next(&mut window) {
         if let Some(r) = e.render_args() {
             game.render(&r);
