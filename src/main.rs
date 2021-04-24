@@ -1,3 +1,4 @@
+//These reminds Rust of the dependencies
 extern crate glutin_window;
 extern crate graphics;
 extern crate opengl_graphics;
@@ -5,6 +6,7 @@ extern crate piston;
 
 extern crate rand;
 
+//Using the dependencies
 use glutin_window::GlutinWindow;
 use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::*;
@@ -25,6 +27,7 @@ pub struct Game {
     score: u32,
 }
 
+// Drawing the green background
 impl Game {
     fn render(&mut self, args: &RenderArgs) {
         const GREEN: [f32; 4] = [0.0, 1.0, 0.0, 1.0];
@@ -37,6 +40,7 @@ impl Game {
         self.food.render(&mut self.gl, args, self.square_width);
     }
 
+    // Updates the score & snake's length every time it eats
     fn update(&mut self, _args: &UpdateArgs) -> bool {
         if !self.snake.update(self.just_eaten, self.cols, self.rows) {
             return false;
@@ -66,6 +70,7 @@ impl Game {
         true
     }
 
+    // Gets the directions based on the pressed keys
     fn pressed(&mut self, btn: &Button) {
         let last_direction = self.snake.d.clone();
         self.snake.d = match btn {
@@ -78,7 +83,7 @@ impl Game {
     }
 }
 
-/// The direction the snake moves in.
+/// The direction the snake moves in
 #[derive(Clone, PartialEq)]
 enum Direction {
     UP,
@@ -97,6 +102,7 @@ pub struct Snake {
 #[derive(Clone)]
 pub struct SnakePiece(u32, u32);
 
+// Drawing the snake
 impl Snake {
     pub fn render(&mut self, args: &RenderArgs) {
         const RED: [f32; 4] = [1.0, 0.0, 0.0, 1.0];
@@ -117,7 +123,7 @@ impl Snake {
         })
     }
 
-    /// Move the snake if valid, otherwise returns false.
+    /// Move the snake if valid, otherwise returns false
     pub fn update(&mut self, just_eaten: bool, cols: u32, rows: u32) -> bool {
         let mut new_front: SnakePiece =
             (*self.snake_parts.front().expect("No front of snake found.")).clone();
@@ -141,7 +147,7 @@ impl Snake {
             self.snake_parts.pop_back();
         }
 
-        // Checks self collision.
+        // Checks for self collision
         if self.is_collide(new_front.0, new_front.1) {
             return false;
         }
@@ -187,9 +193,9 @@ impl Food {
     }
 }
 
+// And here is the main function
 fn main() {
-    // Change this to OpenGL::V2_1 if this fails.
-    let opengl = OpenGL::V3_2;
+    let opengl = OpenGL::V4_5;
 
     const COLS: u32 = 30;
     const ROWS: u32 = 20;
